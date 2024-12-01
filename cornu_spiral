@@ -1,0 +1,39 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Thu Nov 28 15:56:55 2024
+
+@author: thomp
+"""
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# import libraries 
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.special import fresnel
+
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# using scipy.special: fresnel to generate values for the cornu spiral
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# Define the range of desired u 
+u_vals = np.linspace(-6, 6, 1000)
+
+# Compute the Fresnel integrals for each value of u
+C_u_vals, S_u_vals = fresnel(u_vals)
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# plotting
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+plt.rcParams["font.family"] = "Times New Roman"
+plt.figure(figsize=(6, 6))
+plt.plot(C_u_vals, S_u_vals, color="black")
+plt.xlabel("C(u) (Cosine Integral)")
+plt.ylabel("S(u) (Sine Integral)")
+plt.axis("equal")
+plt.grid(True)
+plt.legend()
+plt.show()
+
