@@ -1,0 +1,45 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Thu Nov 28 13:27:47 2024
+
+@author: sv23035
+"""
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# import libraries 
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.special import fresnel
+
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# using scipy.special: fresnel to generate values for intensity
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# Define the range of desired u 
+u_vals = np.linspace(0, 6, 1000)
+
+# Compute the Fresnel integrals for each value of u
+C_u_vals, S_u_vals = fresnel(u_vals) 
+
+# Calculate the intensity
+intensity_vals = C_u_vals**2 + S_u_vals**2
+
+# Scaling the intenisty to increase plot clarity
+scaled_intensity_vals = 6*intensity_vals
+
+
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# plotting
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+plt.rcParams["font.family"] = "Times New Roman"
+plt.plot(u_vals, scaled_intensity_vals, color="black")
+plt.xlabel("Arbitary Coordinate (u)")
+plt.ylabel("Intensity (arbitrary units)")
+plt.axis("equal")
+plt.grid(True)
+plt.legend()
+plt.show()
