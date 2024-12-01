@@ -1,0 +1,79 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Thu Nov 28 15:56:55 2024
+
+@author: thomp
+"""
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Import libraries
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.special import fresnel
+
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# parameters
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# Physical parameters (arbitrary units)
+radius = 2         # Aperture radius
+z = 1              # Fresnel distance
+wavelength = 1     # Wavelength of light
+
+# Numerical parameters
+u_range = 5       # Range for normalized radial coordinates
+num_points = 1000  # Number of points for plotting
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Fresnel diffraction calculation for a circular aperture
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+def fresnel_circular_aperture(radius, z, wavelength, num_points, u_range):
+    """
+    Calculates the Fresnel diffraction pattern for a circular aperture.
+
+    Parameters:
+    - radius: Aperture radius (in arbitrary units).
+    - z: Fresnel propagation distance (in arbitrary units).
+    - wavelength: Wavelength of light (in arbitrary units).
+    - num_points: Number of points for calculation.
+    - u_range: Range of normalized radial coordinates (in arbitrary units).
+
+    Returns:
+    - v: Array of normalized radial coordinates.
+    - intensity: Array of intensity values at each radial coordinate.
+    """
+    # Define arbitary coordiantes u
+    u = np.linspace(-u_range, u_range, num_points)
+
+    # Normalized Fresnel integrals (u = r / sqrt(λz))
+    fresnel_argument = (radius / np.sqrt(wavelength * z)) * u
+
+    # Compute Fresnel integrals (S and C) for circular aperture
+    S, C = fresnel(fresnel_argument)
+
+    # Intensity is proportional to the squared magnitude of the integrals
+    intensity = (C**2 + S**2)
+
+    return u, intensity
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Compute Fresnel diffraction pattern
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+u, intensity = fresnel_circular_aperture(radius, z, wavelength, num_points, u_range)
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Plot the Fresnel diffraction pattern
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+plt.rcParams["font.family"] = "Times New Roman"
+plt.figure(figsize=(10, 6))
+plt.plot(u, intensity, label="Fresnel Diffraction Intensity", color="black")
+plt.ylabel("Arbitary coordinate (u)")
+plt.ylabel("Intensity (arbitrary units)")
+plt.grid()
+plt.legend()
+plt.show()
