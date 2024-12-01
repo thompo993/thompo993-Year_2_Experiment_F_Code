@@ -1,0 +1,114 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Thu Nov 28 15:56:55 2024
+
+@author: thomp
+"""
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# import libraries 
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from scipy.special import fresnel
+from sklearn.metrics import mean_squared_error  # For RMSE calculation
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# parameters
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+aperture_width = 0.34e-3      # slit width in meters
+wavelength = 635e-9           # light wavelength in meters
+distance = 890e-3              # distance from the slit to the screen in meters
+
+constant = np.sqrt(2 / (wavelength * distance)) #constnats in eq (3) and (4)
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# functions
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# Fresnel diffraction pattern function
+def fresnel_diffraction(a, wavelength, z, x):
+    """
+    This evaluates the kernel for the real component of the electric field
+    
+    Arguments:
+    - a = the aperture width (m)
+    - wavelength = wavelength (m)
+    - z = screen aperture distance (m) 
+    - x = position on the screen (m)
+    
+    Returns: 
+    - The intensity at a specified point on the screen 
+    """
+    constant = np.sqrt(2/(wavelength*z))
+    u1 = constant * (x+a/2)
+    u2 = constant * (x-a/2)
+    
+    # Fresnel integrals for u1 and u2
+    S1, C1 = fresnel(u1)
+    S2, C2 = fresnel(u2)
+    
+    # Calculated intensity 
+    intensity = (C1-C2)**2 + (S1-S2)**2
+    return intensity
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# importing and scaling experimental data
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+filename = "F0p02W635ActuallyCSV.csv"
+data = pd.read_csv(filename)
+
+# pixels multiplied by pixel width to get position
+position_exp = 14e-6*data["Position"].values  
+
+# intensity scaled to match data
+intensity_exp = 45*data["Intensity"].values
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# calculating theoretical model
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+intensity_theory = fresnel_diffraction(aperture_width, wavelength, distance, position_exp)
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# shifting theoretical data to align with experimental data 
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#position
+position_shift = -0.011 # Adjust this value to align the theoretical data better
+
+position_theory = position_exp + position_shift
+
+# Recalculate the theoretical intensity
+intensity_theory = fresnel_diffraction(aperture_width, wavelength, distance, position_theory)
+
+# intensity
+intensity_shift = 0.075
+
+intensity_shifted = intensity_theory + intensity_shift
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Calculating RMSE after shift
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+rmse = np.sqrt(mean_squared_error(intensity_exp, intensity_shifted))
+print(f"Root Mean Squared Error: {rmse:.6f}")
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Plotting data with shift applied
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+plt.rcParams["font.family"] = "Times New Roman"
+plt.figure(figsize=(10, 6))
+plt.xlim(0, 0.02)
+plt.plot(position_exp, intensity_exp, "blue", label="Experimental Data")
+plt.plot(position_exp, intensity_shifted, "red", label="Theoretical (Shift Adjusted)")
+plt.xlabel("Position (m)")
+plt.ylabel("Intensity (arbitrary units)")
+plt.title("Single Slit Diffraction: Experimental vs Theoretical")
+plt.legend()
+plt.grid(True)
+plt.show()
