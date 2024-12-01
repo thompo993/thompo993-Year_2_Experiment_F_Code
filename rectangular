@@ -1,0 +1,74 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Thu Nov 28 15:21:10 2024
+
+@author: sv23035
+"""
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# import libraries
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.special import fresnel
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# parameters
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+a = 12        # Arbitary apeture width
+u_range = 7.5      # Arbitary range
+num_points = 1000  # Number of points for plotting
+
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# function using scipy.special: fresnel to generate values for intensity
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+def rectangular_aperture(a, u_range, num_points):
+    """
+    Models the diffraction pattern of a rectangular aperture using arbitary 
+    untis
+
+    Parameters:
+    - a: Width of the aperture in arbitary units.
+    - u_range: Range of normalized Fresnel coordinates.
+    - num_points: Number of points in the u-coordinate array.
+
+    Returns:
+    - u: Array of normalized Fresnel coordinates.
+    - intensity: Array of intensity values corresponding to u.
+    """
+    # Define u coordinates (normalized Fresnel coordinates)
+    u = np.linspace(-u_range, u_range, num_points)
+    
+    # Aperture edges in Fresnel coordinates
+    u1 = u - a / 2
+    u2 = u + a / 2
+
+    # Fresnel integrals for each edge of the aperture
+    S1, C1 = fresnel(u1)
+    S2, C2 = fresnel(u2)
+
+    # Compute the diffraction pattern intensity
+    intensity = (C2 - C1)**2 + (S2 - S1)**2
+
+    return u, intensity
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# calculate diffraction pattern in Fresnel coordinates
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+u, intensity = rectangular_aperture(a, u_range, num_points)
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# plot the results
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+plt.rcParams["font.family"] = "Times New Roman"
+plt.plot(u, intensity, label="Diffraction Intensity", color = "black")
+plt.xlabel("Arbitary Coordinate (u)")
+plt.ylabel("Intensity (arbitrary units)")
+plt.grid()
+plt.legend()
+plt.show()
